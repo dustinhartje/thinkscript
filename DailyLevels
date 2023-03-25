@@ -1,0 +1,23 @@
+input aggregationPeriod = AggregationPeriod.DAY;
+input length = 1;
+input displace = 0;
+input showOnlyLastPeriod = no;
+
+plot DailyHigh;
+plot DailyLow;
+if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriod)[-1]) {
+    DailyHigh = Double.NaN;
+    DailyLow = Double.NaN;
+} else {
+    DailyHigh = Highest(high(period = aggregationPeriod)[-displace], length);
+    DailyLow = Lowest(low(period = aggregationPeriod)[-displace], length);
+}
+
+DailyHigh.SetDefaultColor(GetColor(4));
+DailyHigh.SetPaintingStrategy(PaintingStrategy.Line);
+DailyHigh.SetStyle(Curve.LONG_DASH);
+DailyLow.SetDefaultColor(GetColor(4));
+DailyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+input timeFrame = {default DAY};
+AddChartBubble(high == high(period = timeFrame), DailyHigh, "Daily High", Color.ORANGE, yes);
+AddChartBubble(low == low(period = timeFrame), DailyLow, "Daily Low", Color.ORANGE, no);
