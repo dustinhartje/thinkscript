@@ -1,23 +1,43 @@
-input aggregationPeriod = AggregationPeriod.DAY;
+input aggregationPeriodDaily = AggregationPeriod.DAY;
+input aggregationPeriodWeekly = AggregationPeriod.WEEK;
 input length = 1;
 input displace = 0;
 input showOnlyLastPeriod = no;
 
 plot DailyHigh;
 plot DailyLow;
-if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriod)[-1]) {
+plot WeeklyHigh;
+plot WeeklyLow;
+
+if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodDaily)[-1]) {
     DailyHigh = Double.NaN;
     DailyLow = Double.NaN;
 } else {
-    DailyHigh = Highest(high(period = aggregationPeriod)[-displace], length);
-    DailyLow = Lowest(low(period = aggregationPeriod)[-displace], length);
+    DailyHigh = Highest(high(period = aggregationPeriodDaily)[-displace], length);
+    DailyLow = Lowest(low(period = aggregationPeriodDaily)[-displace], length);
+}
+
+if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodWeekly)[-1]) {
+    WeeklyHigh = Double.NaN;
+    WeeklyLow = Double.NaN;
+} else {
+    WeeklyHigh = Highest(high(period = aggregationPeriodWeekly)[-displace], length);
+    WeeklyLow = Lowest(low(period = aggregationPeriodWeekly)[-displace], length);
 }
 
 DailyHigh.SetDefaultColor(GetColor(4));
-DailyHigh.SetPaintingStrategy(PaintingStrategy.Line);
-DailyHigh.SetStyle(Curve.LONG_DASH);
+DailyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 DailyLow.SetDefaultColor(GetColor(4));
 DailyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
-input timeFrame = {default DAY};
-AddChartBubble(high == high(period = timeFrame), DailyHigh, "Daily High", Color.ORANGE, yes);
-AddChartBubble(low == low(period = timeFrame), DailyLow, "Daily Low", Color.ORANGE, no);
+WeeklyHigh.SetDefaultColor(GetColor(4));
+WeeklyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+WeeklyLow.SetDefaultColor(GetColor(4));
+WeeklyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+
+input timeFrameDay = {default DAY};
+AddChartBubble(high == high(period = timeFrameDay), DailyHigh, "Daily High", Color.ORANGE, yes);
+AddChartBubble(low == low(period = timeFrameDay), DailyLow, "Daily Low", Color.ORANGE, no);
+
+input timeFrameWeek = {default WEEK};
+AddChartBubble(high == high(period = timeFrameWeek), WeeklyHigh, "Weekly High", Color.ORANGE, yes);
+AddChartBubble(low == low(period = timeFrameWeek), WeeklyLow, "Weekly Low", Color.ORANGE, no);
