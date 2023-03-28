@@ -45,9 +45,9 @@ WeeklyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 WeeklyLow.SetDefaultColor(GetColor(4));
 WeeklyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 
-AddChartBubble(high == high(period = timeFrameWeek), WeeklyHigh, "Weekly High", Color.ORANGE, yes);
+AddChartBubble(open == open(period = aggregationPeriodDaily), WeeklyHigh, "Weekly High", Color.ORANGE, yes);
 
-AddChartBubble(low == low(period = timeFrameWeek), WeeklyLow, "Weekly Low", Color.ORANGE, no);
+AddChartBubble(open == open(period = aggregationPeriodDaily), WeeklyLow, "Weekly Low", Color.ORANGE, no);
 
 # Draw today's market open
 def prevPrice = open(period = aggregationPeriodDaily)[-1];
