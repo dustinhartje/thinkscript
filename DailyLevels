@@ -1,13 +1,16 @@
 input aggregationPeriodDaily = AggregationPeriod.DAY;
 input aggregationPeriodWeekly = AggregationPeriod.WEEK;
+input timeFrameDay = {default DAY};
+input timeFrameWeek = {default WEEK};
 input length = 1;
 input displace = 0;
 input showOnlyLastPeriod = no;
+input showOnlyLastPeriodOpen = yes;
 
+
+# Draw daily high and low
 plot DailyHigh;
 plot DailyLow;
-plot WeeklyHigh;
-plot WeeklyLow;
 
 if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodDaily)[-1]) {
     DailyHigh = Double.NaN;
@@ -17,6 +20,18 @@ if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodDaily)[-1]) {
     DailyLow = Lowest(low(period = aggregationPeriodDaily)[-displace], length);
 }
 
+DailyHigh.SetDefaultColor(GetColor(4));
+DailyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+DailyLow.SetDefaultColor(GetColor(4));
+DailyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+
+AddChartBubble(high == high(period = timeFrameDay), DailyHigh, "Daily High", Color.ORANGE, yes);
+AddChartBubble(low == low(period = timeFrameDay), DailyLow, "Daily Low", Color.ORANGE, no);
+
+# Draw Weekly high and low
+plot WeeklyHigh;
+plot WeeklyLow;
+
 if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodWeekly)[-1]) {
     WeeklyHigh = Double.NaN;
     WeeklyLow = Double.NaN;
@@ -25,19 +40,30 @@ if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriodWeekly)[-1]) {
     WeeklyLow = Lowest(low(period = aggregationPeriodWeekly)[-displace], length);
 }
 
-DailyHigh.SetDefaultColor(GetColor(4));
-DailyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
-DailyLow.SetDefaultColor(GetColor(4));
-DailyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 WeeklyHigh.SetDefaultColor(GetColor(4));
 WeeklyHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 WeeklyLow.SetDefaultColor(GetColor(4));
 WeeklyLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 
-input timeFrameDay = {default DAY};
-AddChartBubble(high == high(period = timeFrameDay), DailyHigh, "Daily High", Color.ORANGE, yes);
-AddChartBubble(low == low(period = timeFrameDay), DailyLow, "Daily Low", Color.ORANGE, no);
-
-input timeFrameWeek = {default WEEK};
 AddChartBubble(high == high(period = timeFrameWeek), WeeklyHigh, "Weekly High", Color.ORANGE, yes);
+
 AddChartBubble(low == low(period = timeFrameWeek), WeeklyLow, "Weekly Low", Color.ORANGE, no);
+
+# Draw today's market open
+def prevPrice = open(period = aggregationPeriodDaily)[-1];
+def price = open(period = aggregationPeriodDaily);
+plot DailyOpen = if showOnlyLastPeriodOpen and !IsNaN(prevPrice) then Double.NaN else price;
+
+DailyOpen.SetDefaultColor(GetColor(4));
+DailyOpen.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+
+AddChartBubble(open == open(period = timeFrameDay), DailyOpen, "Market Open", Color.ORANGE, no);
+
+# Draw yesterday's market close
+def ydayClosePrice = close(period = aggregationPeriodDaily);
+plot YdayClose = if showOnlyLastPeriod and !IsNaN(ydayClosePrice) then Double.NaN else ydayClosePrice;
+
+YdayClose.SetDefaultColor(GetColor(4));
+YdayClose.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+
+AddChartBubble(open == open(period = timeFrameDay), YdayClose, "YDay Close", Color.ORANGE, no);
